@@ -1,336 +1,119 @@
-AI 项目文档生成工具
+# AI Doc Generator
+
+通用型开发者效率工具 - 一键生成专业 README、版本日志
+
+## 特性
+
+- 一键生成标准开源 README 文档
+- 智能生成 Keep a Changelog 格式版本日志
+- 自动解析 Git Commit 记录
+- 语义化版本号自动计算
+- 纯 Python 实现，无第三方依赖
+
+## 功能
+
+### Changelog 生成
 
+支持三种输入方式：
+1. Git Commit 记录（feat:/fix:/docs: 等格式）
+2. 纯文本更新描述
+3. 旧版本号 + 更新内容
 
+自动分类：
+- feat → 新增功能
+- fix → 问题修复
+- perf/refactor → 优化改进
+- docs/test/chore → 其他
 
-一个智能化的项目文档自动生成工具,通过对接 Vercel API 接口,自动分析代码仓库并生成高质量的 README 和 Changelog 文档。
+版本计算规则：
+- 仅 fix/perf → 修订号+1 (v1.0.0 → v1.0.1)
+- 含 feat → 次版本号+1 (v1.0.0 → v1.1.0)
+- 含 BREAKING CHANGE → 主版本号+1 (v1.0.0 → v2.0.0)
 
+### README 生成
 
+自动生成标准开源项目 README，包含：
+- 项目名称和描述
+- 功能特性列表
+- 技术栈说明
+- 使用指南
+- 贡献指南
+- 许可证
 
-✨ 特性
+## 开始使用
 
+### 本地运行
 
+```bash
+# 克隆项目
+git clone https://github.com/your-repo/AI-Doc-Generator.git
 
-🚀 自动化生成 - 一键生成专业的项目文档,无需手动编写
+# 进入目录
+cd AI-Doc-Generator
 
-📊 智能分析 - 深度分析代码仓库结构,提取关键信息
+# 生成 Changelog
+python app.py changelog "feat: 新增登录功能\nfix: 修复购物车bug" v1.0.0
 
-📝 双文档支持 - 同时生成 README 和 Changelog 两种核心文档
+# 生成 README
+python app.py readme "我的项目" "这是一个很棒的项目" "功能A|功能B|功能C"
+```
 
-🎨 Markdown 格式 - 生成标准的 Markdown 格式文档,便于阅读和编辑
+### Python 模块调用
 
-⚡ 高效便捷 - 简单的命令行接口,快速完成文档生成
+```python
+from app import generate_changelog_from_input, generate_readme
 
+# 生成 Changelog
+result = generate_changelog_from_input(
+    content="",
+    old_version="v1.0.0",
+    commits_text="feat: 新增会员系统\nfix: 修复登录bug"
+)
+print(result["content"])
 
+# 生成 README
+readme = generate_readme(
+    project_name="我的项目",
+    description="项目描述",
+    features=["功能1", "功能2"]
+)
+print(readme)
+```
 
-📋 功能说明
+## 项目结构
 
+```
+AI-Doc-Generator/
+├── .gitignore          # Git忽略文件
+├── app.py              # 核心代码（纯Python，无依赖）
+├── README.md           # 项目文档
+├── CHANGELOG.md        # 版本更新日志
+├── LICENSE             # MIT许可证
+├── requirements.txt    # 依赖文件（无第三方依赖）
+└── PLATFORMS.md        # 平台适配指南
+```
 
+## 测试用例
 
-本工具通过调用 Vercel API 接口,实现以下核心功能:
+### Changelog 测试
 
+| 输入 | 预期输出 |
+|------|----------|
+| v1.0.0 + feat:新功能 | v1.1.0 |
+| v1.0.0 + fix:修复bug | v1.0.1 |
+| v1.0.0 + BREAKING | v2.0.0 |
+| 无版本号 | v1.0.0 |
 
+### README 测试
 
-README 生成: 自动生成包含项目介绍、安装步骤、使用方法等标准结构的项目说明文档
+```bash
+python app.py readme "AI工具箱" "一款高效的AI辅助工具" "自动生成文档|智能分类|版本管理"
+```
 
-Changelog 生成: 智能分析代码变更历史,自动生成规范的版本更新日志
+## 贡献
 
-仓库分析: 支持对 GitHub、GitLab 等主流代码仓库的深度分析
+欢迎提交 Issue 和 Pull Request！
 
-灵活配置: 支持自定义项目路径和仓库地址
+## 许可证
 
-
-
-🛠️ 安装
-
-
-
-环境要求
-
-
-
-Python 3.7+
-
-依赖包: requests==2.31.0
-
-
-
-安装步骤
-
-
-
-克隆项目仓库
-
-
-
-bash
-
-git clone https://github.com/moodsir/ai-doc-generator.git
-
-cd ai-doc-generator
-
-
-
-
-
-安装依赖包
-
-
-
-bash
-
-pip install -r requirements.txt
-
-
-
-
-
-或手动安装:
-
-
-
-bash
-
-pip install requests==2.31.0
-
-
-
-
-
-📖 使用方法
-
-
-
-基本用法
-
-
-
-通过命令行调用脚本来生成文档:
-
-
-
-bash
-
-python scripts/call\_api.py --project-path <项目路径> --repo-url <仓库地址>
-
-
-
-
-
-参数说明
-
-
-
-参数	必填	说明	示例
-
-\--project-path	是	项目路径	/workspace/my-project
-
-\--repo-url	是	代码仓库地址	https://github.com/user/repo
-
-\--api-url	否	API 接口地址	https://xxx.vercel.app/api/generate
-
-
-
-使用示例
-
-
-
-示例 1: 生成单个项目的文档
-
-
-
-bash
-
-python scripts/call\_api.py \\
-
-&#x20; --project-path "/ai-doc-generator" \\
-
-&#x20; --repo-url "https://github.com/moodsir/ai-doc-generator"
-
-
-
-
-
-示例 2: 使用自定义 API 地址
-
-
-
-bash
-
-python scripts/call\_api.py \\
-
-&#x20; --project-path "/my-project" \\
-
-&#x20; --repo-url "https://github.com/user/repo" \\
-
-&#x20; --api-url "https://custom-api.example.com/generate"
-
-
-
-
-
-输出格式
-
-
-
-执行成功后,脚本会返回 JSON 格式的文档内容:
-
-
-
-json
-
-{
-
-&#x20; "readme": "# 项目名称\\n\\n项目描述...",
-
-&#x20; "changelog": "# Changelog\\n\\n## \[1.0.0] - 2024-01-01..."
-
-}
-
-
-
-
-
-你可以将返回的内容分别保存为 README.md 和 CHANGELOG.md 文件。
-
-
-
-🏗️ 项目结构
-
-
-
-plaintext
-
-ai-doc-generator/
-
-├── README.md                      # 项目说明文档
-
-├── CHANGELOG.md                   # 版本更新日志
-
-├── requirements.txt               # Python 依赖包
-
-└── doc-generator/                 # 核心模块
-
-&#x20;   ├── SKILL.md                   # 技能配置文件
-
-&#x20;   ├── scripts/
-
-&#x20;   │   └── call\_api.py           # API 调用脚本
-
-&#x20;   └── references/
-
-&#x20;       └── api\_spec.md           # API 接口规范文档
-
-
-
-
-
-🔧 技术实现
-
-
-
-Python 3.7+: 项目开发语言
-
-requests: HTTP 请求库,用于调用 Vercel API
-
-JSON: 数据交换格式
-
-Markdown: 文档输出格式
-
-
-
-⚠️ 注意事项
-
-
-
-网络连接: 确保网络环境可以正常访问 Vercel API 接口
-
-超时设置: 由于需要进行代码仓库分析,API 响应时间可能较长(建议超时时间 60 秒)
-
-参数准确性: 确保 project\_path 和 repo\_url 参数正确无误
-
-内容微调: 生成的文档内容可能需要根据实际情况进行适当调整
-
-
-
-📝 开发说明
-
-
-
-核心脚本说明
-
-
-
-scripts/call\_api.py: 主脚本,负责调用 Vercel API 并处理返回结果
-
-
-
-主要功能:
-
-
-
-构建请求参数
-
-发送 POST 请求
-
-解析返回数据
-
-错误处理和异常捕获
-
-
-
-API 接口规范
-
-
-
-详细的 API 接口说明请参考: references/api\_spec.md
-
-
-
-🤝 贡献指南
-
-
-
-欢迎提交 Issue 和 Pull Request 来改进本项目!
-
-
-
-Fork 本仓库
-
-创建特性分支 (git checkout -b feature/AmazingFeature)
-
-提交更改 (git commit -m 'Add some AmazingFeature')
-
-推送到分支 (git push origin feature/AmazingFeature)
-
-开启 Pull Request
-
-
-
-📄 开源协议
-
-
-
-本项目采用 MIT 协议开源。详见 LICENSE 文件。
-
-
-
-👥 作者
-
-
-
-moodsir - 项目维护者
-
-
-
-🔗 相关链接
-
-
-
-GitHub 仓库: https://github.com/moodsir/ai-doc-generator
-
-API 文档: doc-generator/references/api\_spec.md
-
-
-
-如有任何问题或建议,欢迎通过 Issue 进行反馈。
-
+MIT License - see LICENSE file
